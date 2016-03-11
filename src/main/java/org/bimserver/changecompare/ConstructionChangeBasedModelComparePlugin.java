@@ -2,12 +2,13 @@ package org.bimserver.changecompare;
  
 import org.bimserver.models.store.ObjectDefinition;
 import org.bimserver.plugins.PluginConfiguration;
-import org.bimserver.plugins.PluginException;
 import org.bimserver.plugins.PluginManager;
+import org.bimserver.plugins.PluginManagerInterface;
 import org.bimserver.plugins.modelcompare.ModelCompare;
 import org.bimserver.plugins.modelcompare.ModelCompareException;
 import org.bimserver.plugins.modelcompare.ModelComparePlugin;
 import org.bimserver.plugins.objectidms.ObjectIDMException;
+import org.bimserver.shared.exceptions.PluginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +16,10 @@ public class ConstructionChangeBasedModelComparePlugin implements ModelComparePl
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConstructionChangeBasedModelComparePlugin.class);
 	private boolean initialized;
-	private PluginManager pluginManager;
+	private PluginManagerInterface pluginManager;
 	
 	@Override
-	public void init(PluginManager pluginManager) throws PluginException {
+	public void init(PluginManagerInterface pluginManager) throws PluginException {
 		this.pluginManager = pluginManager;
 		initialized = true;
 	}

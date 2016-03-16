@@ -1,8 +1,6 @@
 package org.bimserver.changecompare;
   
-import org.bimserver.interfaces.objects.SPluginType;
 import org.bimserver.models.store.ObjectDefinition;
-import org.bimserver.models.store.StoreFactory;
 import org.bimserver.plugins.PluginConfiguration;
 import org.bimserver.plugins.PluginContext;
 import org.bimserver.plugins.modelcompare.ModelCompare;

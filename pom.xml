@@ -183,6 +183,11 @@
 			<version>1.5.36</version>
 		</dependency>
 		<dependency>
+			<groupId>org.opensourcebim</groupId>
+			<artifactId>ifcplugins</artifactId>
+			<version>0.0.12</version>
+		</dependency>		
+	 	<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.12</version>

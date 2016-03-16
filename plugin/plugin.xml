@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PluginDescriptor>
 	<JavaPlugin>
-		<interfaceClass>org.bimserver.plugins.services.ModelComparePlugin</interfaceClass>
+		<interfaceClass>org.bimserver.plugins.modelcompare.ModelComparePlugin</interfaceClass>
 		<implementationClass>org.bimserver.changecompare.ConstructionChangeBasedModelComparePlugin</implementationClass>
 		<description>ConstructionChangeBased Model Compare Plugin</description>
 	</JavaPlugin>

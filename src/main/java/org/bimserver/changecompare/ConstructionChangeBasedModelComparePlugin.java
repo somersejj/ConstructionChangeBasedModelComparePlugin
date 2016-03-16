@@ -1,61 +1,37 @@
 package org.bimserver.changecompare;
- 
+  
+import org.bimserver.interfaces.objects.SPluginType;
 import org.bimserver.models.store.ObjectDefinition;
+import org.bimserver.models.store.StoreFactory;
 import org.bimserver.plugins.PluginConfiguration;
-import org.bimserver.plugins.PluginManager;
-import org.bimserver.plugins.PluginManagerInterface;
+import org.bimserver.plugins.PluginContext;
 import org.bimserver.plugins.modelcompare.ModelCompare;
 import org.bimserver.plugins.modelcompare.ModelCompareException;
 import org.bimserver.plugins.modelcompare.ModelComparePlugin;
 import org.bimserver.plugins.objectidms.ObjectIDMException;
 import org.bimserver.shared.exceptions.PluginException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConstructionChangeBasedModelComparePlugin implements ModelComparePlugin  {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConstructionChangeBasedModelComparePlugin.class);
-	private boolean initialized;
-	private PluginManagerInterface pluginManager;
-	
-	@Override
-	public void init(PluginManagerInterface pluginManager) throws PluginException {
-		this.pluginManager = pluginManager;
-		initialized = true;
-	}
-	
-	@Override
-	public String getDescription() {
-		return "Construction Change based compare";
-	}
-	
-	@Override
-	public String getDefaultName() {
-		return "Construction Change based compare";
-	}
-	
-	@Override
-	public String getVersion() {
-		return "0.1";
-	}
-	
-	@Override
-	public ObjectDefinition getSettingsDefinition() {
-		return null;
-	}
-	
-	@Override
-	public boolean isInitialized() {
-		return initialized;
-	}
+	private PluginContext pluginContext;
+
 	
 	@Override
 	public ModelCompare createModelCompare(PluginConfiguration pluginConfiguration) throws ModelCompareException {
 		try {
-			return new ContructionChangeCompare(pluginManager.requireObjectIDM());
+			return new ContructionChangeCompare(pluginContext.getDefaultObjectIDM());
 		} catch (ObjectIDMException e) {
 			throw new ModelCompareException(e);
-		}
+		}	}
+
+	@Override
+	public void init(PluginContext pluginContext) throws PluginException {
+		this.pluginContext = pluginContext;
+	}
+
+	@Override
+	public ObjectDefinition getSettingsDefinition() {
+		return null;
 	}
 
 }

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.bimserver.emf.IdEObject;
 import org.bimserver.emf.IfcModelInterface;
-import org.bimserver.ifc.compare.AbstractModelCompare;
 import org.bimserver.models.ifc2x3tc1.IfcBuildingElement;
 import org.bimserver.models.ifc2x3tc1.IfcRelConnectsElements;
+import org.bimserver.models.ifc2x3tc1.IfcWindow;
 import org.bimserver.models.store.CompareResult;
 import org.bimserver.models.store.CompareType;
 import org.bimserver.models.store.ObjectAdded;
@@ -18,6 +18,8 @@ import org.bimserver.plugins.modelcompare.ModelCompareException;
 import org.bimserver.plugins.objectidms.ObjectIDM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.BiMap;
 
 public class ContructionChangeCompare extends AbstractModelCompare{
 
@@ -33,75 +35,106 @@ public class ContructionChangeCompare extends AbstractModelCompare{
 		LOGGER.info("Comparing started ...");
 
 		// get all ifc elements from model 1
-        List<IfcBuildingElement> elements1 = model1.getAll(IfcBuildingElement.class);
-		
+        List<IdEObject> elements1 = new ArrayList<IdEObject>();
+        BiMap<Long, ? extends IdEObject> objects1 = model1.getObjects();
+        for (Long objectId : objects1.keySet())
+        {
+          IdEObject object = model1.get(objectId.longValue());
+          if (object instanceof IfcBuildingElement) 
+          {
+        	  elements1.add(object);
+          }
+        }
+        List<IdEObject> elements2 = new ArrayList<IdEObject>();
+        BiMap<Long, ? extends IdEObject> objects2 = model2.getObjects();
+        for (Long objectId : objects2.keySet())
+        {
+          IdEObject object = model2.get(objectId.longValue());
+          if (object instanceof IfcBuildingElement) 
+          {
+        	  elements2.add(object);
+          }
+        }
 		// get all ifcelements from model 2 
-        List<IfcBuildingElement> elements2 = model2.getAll(IfcBuildingElement.class);
 		
-        List<IfcBuildingElement> addedList = listAddedElements(elements1, elements2);
-        List<IfcBuildingElement> removedList = listAddedElements(elements2, elements1);
+        List<IdEObject> addedList = listAddedElements(elements1, elements2);
+        List<IdEObject> removedList = listAddedElements(elements2, elements1);
        
 		elements1.removeAll(addedList);
 		elements2.removeAll(removedList);
 		
 		// now compare the 2 model without the added or removed objects
-		List<IfcBuildingElement> changedList = compareComplete(elements1,elements2);
+		List<IdEObject> changedList = compareComplete(elements1,elements2);
 		
-		for (IfcBuildingElement element : addedList)
+		for (IdEObject element : addedList)
 		{		
-			IdEObject eObject = model1.getByGuid(element.getGlobalId());
+			IdEObject eObject = model1.get(element.getOid());
 			ObjectAdded objectAdded = StoreFactory.eINSTANCE.createObjectAdded();
 			objectAdded.setDataObject(makeDataObject(eObject));
 			getCompareContainer(element.eClass()).getItems().add(objectAdded);
 		}
-		for (IfcBuildingElement element : removedList)
+		for (IdEObject element : removedList)
 		{
-			IdEObject eObject = model1.getByGuid(element.getGlobalId());
+			IdEObject eObject = model2.get(element.getOid());
 			ObjectRemoved objectRemoved = StoreFactory.eINSTANCE.createObjectRemoved();
 			objectRemoved.setDataObject(makeDataObject(eObject));
 			getCompareContainer(element.eClass()).getItems().add(objectRemoved);
 		}
-		for (IfcBuildingElement element : changedList)
+		for (IdEObject element : changedList)
 		{
-			IdEObject eObject = model1.getByGuid(element.getGlobalId());
+			IdEObject eObject = model1.get(element.getOid());
 			ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
 			objectModified.setDataObject(makeDataObject(eObject));
 			getCompareContainer(element.eClass()).getItems().add(objectModified);
 		}
+		LOGGER.info("ComparResult");
+		LOGGER.info("Added : ");
+		for (IdEObject element : addedList)
+		{	
+			LOGGER.info("      " + model1.get(element.getOid()));
+		}
+		LOGGER.info("Removed : ");
+		for (IdEObject element : removedList)
+		{	
+			LOGGER.info("      " + model2.get(element.getOid()));
+		}
+		LOGGER.info("Changed : ");
+		for (IdEObject element : changedList)
+		{	
+			LOGGER.info("      " + model1.get(element.getOid()));
+		}
+		
 
 		return result;
 	}
 	
-	private List<IfcBuildingElement> listAddedElements(List<IfcBuildingElement> newList , List<IfcBuildingElement> oldList)
+	private List<IdEObject> listAddedElements(List<IdEObject> newList , List<IdEObject> oldList)
 	{
 		
-		List<IfcBuildingElement> newElementsList = new ArrayList<IfcBuildingElement>();
-        if (!oldList.retainAll(newList)) 
-        {
-        	return newElementsList;
-        }
-        else
-        {
-			for (IfcBuildingElement element : newList)
+		List<IdEObject> newElementsList = new ArrayList<IdEObject>();
+		for (IdEObject element : newList)
+		{
+			if (!oldList.contains(element))
 			{
-				if (!oldList.contains(element))
-				{
-					newElementsList.add(element);
-				}
+				newElementsList.add(element);
 			}
-        }
+			else
+			{
+				this.LOGGER.info("Object is in oldlist :  " + element);
+			}
+		}
 		return newElementsList;
 	}
 	
-	private List<IfcBuildingElement> compareComplete(List<IfcBuildingElement> list1, List<IfcBuildingElement> list2)
+	private List<IdEObject> compareComplete(List<IdEObject> list1, List<IdEObject> list2)
 	{
 		boolean changed = false;
-		List<IfcBuildingElement> changedList = new ArrayList<IfcBuildingElement>(); 
-		for (IfcBuildingElement element1 : list1)
+		List<IdEObject> changedList = new ArrayList<IdEObject>(); 
+		for (IdEObject element1 : list1)
 		{
 			
-			IfcBuildingElement element2 = list2.get(list2.indexOf(element1));
-			for (IfcRelConnectsElements connectedTo1 :  element1.getConnectedTo())
+			IdEObject element2 = list2.get(list2.indexOf(element1));
+		/*for (IfcRelConnectsElements connectedTo1 :  element1.getConnectedTo())
 			{
 				for (IfcRelConnectsElements connectedTo2 :  element2.getConnectedTo())
 				{ 
@@ -136,7 +169,7 @@ public class ContructionChangeCompare extends AbstractModelCompare{
 					  changed = true;					  
 				  }
 			    }
-			}
+			}*/
 
 			if (!element1.equals(element2))
 			{

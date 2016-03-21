@@ -135,79 +135,74 @@ public abstract class AbstractModelCompare implements ModelCompare {
 		EClass eClass = eObject1.eClass();
 		if (sCompareType == CompareType.ALL || sCompareType == CompareType.MODIFY) {
 			for (EStructuralFeature eStructuralFeature : eClass.getEAllStructuralFeatures()) {
-				if (objectIDM.shouldFollowReference(originalQueryClass, eClass, eStructuralFeature)) {
-					if (eStructuralFeature.getEAnnotation("hidden") != null) {
-						continue;
-					}
-					Object value1 = eObject1.eGet(eStructuralFeature);
-					Object value2 = eObject2.eGet(eStructuralFeature);
-					if (eStructuralFeature.isMany()) {
-					} else {
-						if (eStructuralFeature.getEType() instanceof EClass) {
-							if (value1 == null && value2 == null) {
-							} else if (value1 == null && value2 != null) {
-								EClass value2Class = ((EObject) value2).eClass();
-								if (value2Class.getEAnnotation("wrapped") != null) {
-									Object realVal2 = ((EObject) value2).eGet(value2Class.getEStructuralFeature("wrappedValue"));
-									ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
-									objectModified.setDataObject(makeDataObject(eObject1));
-									objectModified.setFieldName(eStructuralFeature.getName());
-									objectModified.setOldValue(null);
-									objectModified.setNewValue(realVal2.toString());
-									getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
-								}
-							} else if (value1 != null && value2 == null) {
-								EClass value1Class = ((EObject) value1).eClass();
-								if (value1Class.getEAnnotation("wrapped") != null) {
-									Object realVal1 = ((EObject) value1).eGet(value1Class.getEStructuralFeature("wrappedValue"));
-									ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
-									objectModified.setDataObject(makeDataObject(eObject1));
-									objectModified.setFieldName(eStructuralFeature.getName());
-									objectModified.setOldValue(realVal1.toString());
-									objectModified.setNewValue(null);
-									getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
-								}
-							} else {
-								EClass value1Class = ((EObject) value1).eClass();
-								if (((EObject) value1).eClass().getEAnnotation("wrapped") != null) {
-									Object realVal1 = ((EObject) value1).eGet(value1Class.getEStructuralFeature("wrappedValue"));
-									Object realVal2 = ((EObject) value2).eGet(value1Class.getEStructuralFeature("wrappedValue"));
-									if (!realVal1.equals(realVal2)) {
-										ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
-										objectModified.setDataObject(makeDataObject(eObject1));
-										objectModified.setFieldName(eStructuralFeature.getName());
-										objectModified.setOldValue(realVal1.toString());
-										objectModified.setNewValue(realVal2.toString());
-										getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
-									}
-								}
-							}
-						} else if (eStructuralFeature.getEType() instanceof EDataType) {
-							if (value1 == null && value2 == null) {
-							} else if (value1 == null && value2 != null) {
+				Object value1 = eObject1.eGet(eStructuralFeature);
+				Object value2 = eObject2.eGet(eStructuralFeature);
+				if (eStructuralFeature.isMany()) {
+				} else {
+					if (eStructuralFeature.getEType() instanceof EClass) {
+						if (value1 == null && value2 == null) {
+						} else if (value1 == null && value2 != null) {
+							EClass value2Class = ((EObject) value2).eClass();
+							if (value2Class.getEAnnotation("wrapped") != null) {
+								Object realVal2 = ((EObject) value2).eGet(value2Class.getEStructuralFeature("wrappedValue"));
 								ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
 								objectModified.setDataObject(makeDataObject(eObject1));
 								objectModified.setFieldName(eStructuralFeature.getName());
 								objectModified.setOldValue(null);
-								objectModified.setNewValue(value2.toString());
-								getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
-							} else if (value1 != null && value2 == null) {
-								ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
-								objectModified.setDataObject(makeDataObject(eObject1));
-								objectModified.setFieldName(eStructuralFeature.getName());
-								objectModified.setOldValue(value1.toString());
-								objectModified.setNewValue(null);
-								getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
-							} else if (!value1.equals(value2)) {
-								ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
-								objectModified.setDataObject(makeDataObject(eObject1));
-								objectModified.setFieldName(eStructuralFeature.getName());
-								objectModified.setOldValue(value1.toString());
-								objectModified.setNewValue(value2.toString());
+								objectModified.setNewValue(realVal2.toString());
 								getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
 							}
+						} else if (value1 != null && value2 == null) {
+							EClass value1Class = ((EObject) value1).eClass();
+							if (value1Class.getEAnnotation("wrapped") != null) {
+								Object realVal1 = ((EObject) value1).eGet(value1Class.getEStructuralFeature("wrappedValue"));
+								ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
+								objectModified.setDataObject(makeDataObject(eObject1));
+								objectModified.setFieldName(eStructuralFeature.getName());
+								objectModified.setOldValue(realVal1.toString());
+								objectModified.setNewValue(null);
+								getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
+							}
+						} else {
+							EClass value1Class = ((EObject) value1).eClass();
+							if (((EObject) value1).eClass().getEAnnotation("wrapped") != null) {
+								Object realVal1 = ((EObject) value1).eGet(value1Class.getEStructuralFeature("wrappedValue"));
+								Object realVal2 = ((EObject) value2).eGet(value1Class.getEStructuralFeature("wrappedValue"));
+								if (!realVal1.equals(realVal2)) {
+									ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
+									objectModified.setDataObject(makeDataObject(eObject1));
+									objectModified.setFieldName(eStructuralFeature.getName());
+									objectModified.setOldValue(realVal1.toString());
+									objectModified.setNewValue(realVal2.toString());
+									getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
+								}
+							}
 						}
-					}
+					} else if (eStructuralFeature.getEType() instanceof EDataType) {
+						if (value1 == null && value2 == null) {
+						} else if (value1 == null && value2 != null) {
+							ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
+							objectModified.setDataObject(makeDataObject(eObject1));
+							objectModified.setFieldName(eStructuralFeature.getName());
+							objectModified.setOldValue(null);
+							objectModified.setNewValue(value2.toString());
+							getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
+						} else if (value1 != null && value2 == null) {
+							ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
+							objectModified.setDataObject(makeDataObject(eObject1));
+							objectModified.setFieldName(eStructuralFeature.getName());
+							objectModified.setOldValue(value1.toString());
+							objectModified.setNewValue(null);
+							getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
+						} else if (!value1.equals(value2)) {
+							ObjectModified objectModified = StoreFactory.eINSTANCE.createObjectModified();
+							objectModified.setDataObject(makeDataObject(eObject1));
+							objectModified.setFieldName(eStructuralFeature.getName());
+							objectModified.setOldValue(value1.toString());
+							objectModified.setNewValue(value2.toString());
+							getCompareContainer(eObject1.eClass()).getItems().add(objectModified);
+						}
+						}
 				}
 			}
 		}
